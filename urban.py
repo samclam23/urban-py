@@ -5,9 +5,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_definitions( word: str ) -> dict:
+def get_definitions( word: str ) -> list:
     definitions = services.get_word_definitions(word)
-    logger.info("\n Definitions: {}\n".format(definitions))
-    return None
+    for definition in definitions:
+        logger.info("\n Definition: {}\n".format(definition))
+    return definitions
 
-get_definitions("cool")    
+def get_definition( word: str ) -> dict:
+    definitions = services.get_word_definitions(word)
+    logger.info("\n Definition: {}\n".format(definitions[0]))
+    return definitions[0] 
+
+get_definitions("hey")
+get_definition("cool")

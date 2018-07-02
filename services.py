@@ -6,16 +6,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_word_definitions(word: str) -> dict:
+def get_word_definitions(word: str) -> list:
     definition_blob = http_requests.get_word_definition(word)
     soup = BeautifulSoup(definition_blob, "html.parser")
-    definitions = {}
-    counter = 0
+    definitions = []
     raw_definitions = soup.find_all(class_="def-panel")
     for raw_definition in raw_definitions:
-        logger.info("Definition count = {}\n".format(counter))
-        definitions[counter] = _format_single_definition(str(raw_definition))   #TODO: get the dict in order
-        counter+=1
+        definitions.append(_format_single_definition(str(raw_definition)))
     return definitions
 
 
