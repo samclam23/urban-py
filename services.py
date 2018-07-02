@@ -13,6 +13,7 @@ def get_word_definitions(word: str) -> dict:
     counter = 0
     raw_definitions = soup.find_all(class_="def-panel")
     for raw_definition in raw_definitions:
+        logger.info("Definition count = {}\n".format(counter))
         definitions[counter] = _format_single_definition(str(raw_definition))   #TODO: get the dict in order
         counter+=1
     return definitions
@@ -22,16 +23,16 @@ def _format_single_definition(raw_definition: str) -> dict:
     soup = BeautifulSoup(raw_definition, "html.parser")
 
     raw_meaning = soup.find_all(class_="meaning")
-   # logger.info("\n\n\n\n\n\n raw_meaning: {}".format(raw_meaning))
     meaning =  _format_raw_html(raw_meaning)
+    logger.info("Meaning: {}\n".format(meaning))
 
     raw_example = soup.find_all(class_="example")
-   # logger.info("\n\n\n\n\n\n\n raw_example: {}".format(raw_example))
     example =  _format_raw_html(raw_example)
+    logger.info("Example: {}\n".format(example))
 
     raw_contributor = soup.find_all(class_="contributor")
-   # logger.info("\n\n\n\n\n\n\n raw_contributor: {}".format(raw_contributor))
     contributor =  _format_raw_html(raw_contributor)
+    logger.info("Contributer: {}\n".format(contributor))
 
     definition = {
         'meaning': meaning,
@@ -42,29 +43,42 @@ def _format_single_definition(raw_definition: str) -> dict:
 
 
 def _format_raw_html(raw_html: str) -> str:
-    logger.info("\n Soup: {}".format(raw_html))   
-    links_removed = _remove_links(raw_html)
-    logger.info("After removing links: {}".format(links_removed))
+    logger.info("\n Soup: {}\n".format(raw_html))
+    br_removed = _remove_tag(raw_html, "br")
 
-    formatted = _remove_div(links_removed)
-    logger.info("After formatting: {}".format(formatted))
+    bold_removed = _remove_replace_tag(br_removed, "b")
+    italics_removed = _remove_replace_tag(bold_removed, "i")
+    links_removed = _remove_replace_tag(italics_removed, "a")
+    div_removed = _remove_replace_outer_div(links_removed)
+
+    formatted = str(div_removed).replace('&apos;', '\'')
+    logger.info("\n Formatted Soup: {}\n".format(formatted))
     return formatted
 
-def _remove_links(raw_html: str) -> str:
+
+def _remove_replace_tag(raw_html: str, remove_tag: str) -> str:
     soup = BeautifulSoup(str(raw_html), "html.parser")
-    a_tags = soup.select("a")
-    for a_tag in a_tags:
-        temp_string = a_tag.string
-        a_tag.replace_with(temp_string)
+    tags = soup.select(remove_tag)
+    for tag in tags:
+        temp_string = tag.string
+        tag.replace_with(temp_string)
     return soup
 
 
-def _remove_div(raw_html: str) -> str:
+def _remove_replace_outer_div(raw_html: str) -> str:
     soup = BeautifulSoup(str(raw_html), "html.parser")
     div = soup.select("div")
     for div in div:
         temp_string = div.string
     return temp_string
+
+
+def _remove_tag(raw_html: str, remove_tag: str) -> str:
+    soup = BeautifulSoup(str(raw_html), "html.parser")
+    tags = soup.select(remove_tag)
+    for tag in tags:
+        tag.decompose()
+    return soup    
 
 
 

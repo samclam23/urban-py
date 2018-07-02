@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def get_definitions( word: str ) -> dict:
     definitions = services.get_word_definitions(word)
-    logger.info("\n Definitions: {}".format(definitions))   
+    logger.info("\n Definitions: {}\n".format(definitions))
     return None
 
-get_definitions("hey")    
+get_definitions("cool")    
